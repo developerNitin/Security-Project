@@ -2,6 +2,7 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const ejs = require("ejs");
+const mongoose = require("mongoose");
 
 const app = express();
 
@@ -10,6 +11,8 @@ app.set('view engine', 'ejs');
 app.use(bodyparser.urlencoded({
   extended: true
 }));
+
+mongoose.connect("mongodb://localhost:27017//userDB", {useNewUrlParser: true});
 
 
 app.get("/", function(req, res) {
