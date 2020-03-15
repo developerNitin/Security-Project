@@ -1,8 +1,10 @@
 //jshint esversion:6
+require("dotenv").config();
 const express = require("express");
 const bodyparser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption");
 
 const app = express();
 
@@ -18,12 +20,17 @@ mongoose.connect("mongodb://localhost:27017/userdb", {
   useUnifiedTopology: true
 });
 
-const newUserSchrema = {
+const userSchema = new mongoose.Schema({
   email: String,
   password: String
-};
+});
 
-const user = new mongoose.model("user", newUserSchrema);
+userSchema.plugin(encrypt, {
+  secret: process.env.SECRET,
+  encryptedfields: "password"
+});
+
+const user = new mongoose.model("user", userSchema);
 // -------->
 
 app.get("/", function(req, res) {
@@ -60,9 +67,19 @@ app.post("/login", function(req, res) {
   const Username = req.body.username;
   const Password = req.body.password;
 
-  user.findOne({email: Username}, function(err, founduser) {
-    if ((!err)&&(founduser.password === Password)) {
-      res.render("secrets");
+  user.findOne({
+    email: Username
+  }, function(err, founduser) {
+    if (!err) {
+      if (Password) {
+        if (founduser.password === Password) {
+          res.render("secrets");
+        } else {
+          res.send("wrong Password");
+        }
+      } else {
+        res.send("please enter Password");
+      }
     } else {
       res.send(err);
     }
