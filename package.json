@@ -9,6 +9,7 @@
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "mongoose": "^5.9.4",
+    "mongoose-encryption": "^2.0.2",
     "parser": "^0.1.4"
   },
   "devDependencies": {},

@@ -12,8 +12,19 @@ app.use(bodyparser.urlencoded({
   extended: true
 }));
 
-mongoose.connect("mongodb://localhost:27017//userDB", {useNewUrlParser: true});
+// --------> mongodb
+mongoose.connect("mongodb://localhost:27017/userdb", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
+const newUserSchrema = {
+  email: String,
+  password: String
+};
+
+const user = new mongoose.model("user", newUserSchrema);
+// -------->
 
 app.get("/", function(req, res) {
   res.render("home");
@@ -27,10 +38,40 @@ app.get("/register", function(req, res) {
   res.render("register");
 });
 
+app.post("/register", function(req, res) {
+  const Username = req.body.username;
+  const Password = req.body.password;
+
+  const newUser = new user({
+    email: Username,
+    password: Password,
+  });
+
+  newUser.save(function(err) {
+    if (!err) {
+      res.render("secrets");
+    } else {
+      console.log(err);
+    }
+  });
+});
+
+app.post("/login", function(req, res) {
+  const Username = req.body.username;
+  const Password = req.body.password;
+
+  user.findOne({email: Username}, function(err, founduser) {
+    if ((!err)&&(founduser.password === Password)) {
+      res.render("secrets");
+    } else {
+      res.send(err);
+    }
+  });
+});
 
 
 
 
-app.listen(3000, function(){
+app.listen(3000, function() {
   console.log("server is runnoing on port 3000");
 });
